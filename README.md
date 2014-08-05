@@ -1,15 +1,8 @@
-nebula
-======
+Dropdown
+========
 
-Javascript module framework
+Not the most creative name now is it? 
 
-**Formula :**
+A ui package component for replacing dropdown. 
 
-get require js ->
-load configuration for tool modules and configuration ->
-load tool modules ->
-	pass them to main sorter which was loaded in tool modules :
-		load configurations 
-		make map of module paths :
-			load all modules 
-			assign required modules 
+more stuff to come
