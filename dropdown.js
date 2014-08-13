@@ -10,80 +10,7 @@ define({
 	},
 
 	make : function ( define ) { 
-		
-		var body, event_circle
-
-		body         = this.library.transistor.make( this.define_body( define ) )
-		event_circle = this.library.event_master.make({
-			state  : {
-				body   : { 
-					selected : body.node.firstChild,
-					choice   : body.node.children[1]
-				},
-				open   : false,
-				chosen : { 
-					value : ""
-				}
-			},
-			events : [
-				{
-					called       : "toggle_dropdown",
-					that_happens : [
-						{
-							on : body.node.firstChild,
-							is : [ "click" ]
-						}
-					],
-					only_if      : function ( heard ) { 
-						return true
-					}
-				},
-				{
-					called       : "option_select",
-					that_happens : [
-						{
-							on : body.node.children[1],
-							is : [ "click" ]
-						}
-					],
-					only_if : function ( heard ) {
-						return ( heard.event.target.getAttribute("data-value") )
-					}
-				}
-			]
-		})
-		event_circle.add_listener([
-			{
-				for       : "option_select",
-				that_does : function ( heard ) {
-					heard.state.chosen.value                         = heard.event.target.getAttribute("data-value")
-					heard.state.body.selected.firstChild.textContent = heard.state.chosen.value
-					return {
-						event : heard.state.event,
-						state : event_circle.stage_event({
-							called : "toggle_dropdown"
-						}).get_state(),
-					}
-				},
-			},
-			{
-				for       : "toggle_dropdown",
-				that_does : function ( heard ) {
-					
-					if ( heard.state.open ) {
-						heard.state.open                      = false
-						heard.state.body.choice.style.display = "none"
-					} else { 
-						heard.state.open                      = true
-						heard.state.body.choice.style.display = "block"
-					}
-
-					return heard
-				}
-			}
-		])
-
-		return body
+		return {}
 	},
 
 	define_event : function ( define ) {
@@ -118,7 +45,7 @@ define({
 		]
 	},
 
-	define_listener : function ( define ) { 
+	define_listener : function ( define ) {
 		return [
 			{
 				for       : "option_select",
@@ -144,8 +71,10 @@ define({
 					)
 					if ( dropdown_body.nextSibling.style.display === "none" ) { 
 						dropdown_body.nextSibling.style.display = "block"
+						dropdown_body.lastChild.textContent     = "+"
 					} else { 
 						dropdown_body.nextSibling.style.display = "none"
+						dropdown_body.lastChild.textContent     = "-"
 					}
 
 					return heard
@@ -168,7 +97,7 @@ define({
 						},
 						{
 							"class" : define.class_name.option_selector,
-							"text"  : "+"
+							"text"  : "-"
 						},
 					]
 				},
