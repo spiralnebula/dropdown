@@ -42,15 +42,16 @@
 
 					requirejs( tool_module_paths , function () {
 
-						var tool_path_map, loaded_modules
-
+						var tool_path_map, loaded_modules, nebula_main
+						
+						nebula_main    = arguments[0]
 						loaded_modules = Array.prototype.slice.call( arguments )
 						tool_path_map  = module.sort_module_paths_and_objects_into_path_map({
 							paths   : [].concat( tool_configuration.module, "entry" ),
 							objects : loaded_modules.slice(1).concat( module )
 						})
 
-						arguments[0].make({
+						nebula_main.make({
 							nebula        : tool_path_map,
 							configuration : module_configuration,
 							root          : root_directory

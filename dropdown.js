@@ -9,7 +9,34 @@ define({
 		],
 	},
 
-	make : function ( define ) { 
+	make : function ( define ) {
+		var event_circle, body, option_name,
+		default_value = define.option.default_value || define.option.choice[0]
+		body          = this.library.transistor.make(this.define_body({
+			name   : "main",
+			option : {
+				default_value : default_value,
+				choice        : define.option.choice,
+				mark          : define.option.mark
+			},
+			class_name    : define.class_name
+		}))
+		event_circle = this.library.event_master.make({
+			events : this.define_event({
+				body : body.body
+			}),
+			state  : {
+				option : {
+					"main" : default_value
+				}
+			},
+		})
+		event_circle.add_listener(this.define_listener({
+			default_value : default_value,
+			choice        : define.option.choice,
+			mark          : define.option.mark
+		}))
+		body.append( define.append_to )
 		return {}
 	},
 
@@ -56,6 +83,7 @@ define({
 					value                                       = heard.event.target.getAttribute("data-dropdown-value")
 					wrap.style.display                          = "none"
 					wrap.previousSibling.firstChild.textContent = value
+					wrap.previousSibling.lastChild.textContent  = define.mark.closed
 					heard.state.option[name]                    = value
 					return heard
 				},
@@ -71,10 +99,10 @@ define({
 					)
 					if ( dropdown_body.nextSibling.style.display === "none" ) { 
 						dropdown_body.nextSibling.style.display = "block"
-						dropdown_body.lastChild.textContent     = "+"
+						dropdown_body.lastChild.textContent     = define.mark.open
 					} else { 
 						dropdown_body.nextSibling.style.display = "none"
-						dropdown_body.lastChild.textContent     = "-"
+						dropdown_body.lastChild.textContent     = define.mark.closed
 					}
 
 					return heard
@@ -93,11 +121,11 @@ define({
 					child           : [
 						{
 							"class" : define.class_name.option_selected,
-							"text"  : define.option.default_option
+							"text"  : define.option.default_value
 						},
 						{
 							"class" : define.class_name.option_selector,
-							"text"  : "-"
+							"text"  : define.option.mark.closed
 						},
 					]
 				},
@@ -105,7 +133,7 @@ define({
 					"display"             : "none",
 					"class"               : define.class_name.option_wrap,
 					"child"               : this.library.morphism.index_loop({
-						array   : define.option.choices,
+						array   : define.option.choice,
 						else_do : function ( loop ) {
 							return loop.into.concat({
 								"class"               : define.class_name.option,

@@ -15,31 +15,39 @@
 	window,
 	{ 
 		make : function ( module ) {
-
 			var sorter
 
 			sorter = module.nebula.nebula.make()
-			
-			sorter.module_is_loading({
-				called : module.configuration.name
-			})
-
-			sorter.call_this_method_upon_load_completion( function ( load_map ) {
+			sorter.call_this_method_on_load_completion( function ( load_map ) {
 				module.nebula.get.require_package_modules({
-					load_map       : load_map,
-					root_directory : module.root
+					main_module_name : module.configuration.name,
+					load_map         : load_map.path,
+					root_directory   : module.root,
+					set_global       : function ( object ) { 
+						
+						if ( module.configuration.start ) { 
+							
+							if ( module.configuration.start.initiate ) { 
+								object.make()
+							}
+
+							if ( module.configuration.start.test ) { 
+								window[module.configuration.name] = object
+								window[module.configuration.name].make( module.configuration.start.test.with || {} )
+							}
+						}
+					}
 				})
 			})
 
 			module.nebula.get.make({
 				require        : module.configuration, 
 				sort           : sorter,
-				root_directory : module.root
-			})
-
-			sorter.module_has_loaded({
-				called   : module.configuration.name,
-				returned : [].concat( module.configuration.main, module.configuration.module )
+				root_directory : module.root,
+				main_package   : { 
+					name   : module.configuration.name,
+					loaded : [].concat( module.configuration.main, module.configuration.module )
+				}
 			})
 		}
 	}
