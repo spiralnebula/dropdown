@@ -40,13 +40,20 @@ define({
 		return {}
 	},
 
+	define_state : function ( define ) { 
+		console.log( define )
+		return { 
+			value : define.with.option.value || define.with.option.choice[0]
+		}
+	},
+
 	define_event : function ( define ) {
 		return [
 			{
-				called       : "toggle_dropdown",
+				called       : "toggle dropdown",
 				that_happens : [
 					{
-						on : define.body,
+						on : define.with.body,
 						is : [ "click" ]
 					}
 				],
@@ -58,10 +65,10 @@ define({
 				}
 			},
 			{
-				called       : "option_select",
+				called       : "option select",
 				that_happens : [
 					{
-						on : define.body,
+						on : define.with.body,
 						is : [ "click" ]
 					}
 				],
@@ -75,21 +82,7 @@ define({
 	define_listener : function ( define ) {
 		return [
 			{
-				for       : "option_select",
-				that_does : function ( heard ) {
-					var wrap, name, value
-					wrap                                        = heard.event.target.parentElement
-					name                                        = heard.event.target.getAttribute("data-dropdown-name")
-					value                                       = heard.event.target.getAttribute("data-dropdown-value")
-					wrap.style.display                          = "none"
-					wrap.previousSibling.firstChild.textContent = value
-					wrap.previousSibling.lastChild.textContent  = define.mark.closed
-					heard.state.option[name]                    = value
-					return heard
-				},
-			},
-			{
-				for       : "toggle_dropdown",
+				for       : "toggle dropdown",
 				that_does : function ( heard ) {
 					var dropdown_body
 					dropdown_body  = ( 
@@ -97,35 +90,57 @@ define({
 							heard.event.target : 
 							heard.event.target.parentElement 
 					)
+					
 					if ( dropdown_body.nextSibling.style.display === "none" ) { 
 						dropdown_body.nextSibling.style.display = "block"
-						dropdown_body.lastChild.textContent     = define.mark.open
+						dropdown_body.lastChild.textContent     = dropdown_body.getAttribute("data-mark-open")
 					} else { 
 						dropdown_body.nextSibling.style.display = "none"
-						dropdown_body.lastChild.textContent     = define.mark.closed
+						dropdown_body.lastChild.textContent     = dropdown_body.getAttribute("data-mark-closed")
 					}
 
 					return heard
 				}
+			},
+			{
+				for       : "option select",
+				that_does : function ( heard ) {
+					var wrap, name, value, text, notation, option, option_state
+					option               = heard.event.target
+					wrap                 = option.parentElement
+					text                 = wrap.previousSibling.firstChild
+					notation             = wrap.previousSibling.lastChild
+					name                 = option.getAttribute("data-dropdown-name")
+					value                = option.getAttribute("data-dropdown-value")
+					option_state         = heard.state.option[name]
+					wrap.style.display   = "none"
+					notation.textContent = wrap.previousSibling.getAttribute("data-mark-closed")
+					text.textContent     = value
+					option_state.value   = value
+					return heard
+				},
 			}
 		]
 	},
 
 	define_body : function ( define ) {
+		console.log( define.class_name )
 		return { 
 			"class" : define.class_name.main,
 			child   : [
 				{
-					"class"         : define.class_name.option_selected_wrap,
-					"data-dropdown" : "true",
-					child           : [
+					"class"            : define.class_name.option_selected_wrap,
+					"data-dropdown"    : "true",
+					"data-mark-closed" : define.with.option.mark.closed,
+					"data-mark-open"   : define.with.option.mark.open,
+					child              : [
 						{
 							"class" : define.class_name.option_selected,
-							"text"  : define.option.default_value
+							"text"  : define.with.option.default_value
 						},
 						{
-							"class" : define.class_name.option_selector,
-							"text"  : define.option.mark.closed
+							"class"            : define.class_name.option_selector,
+							"text"             : define.with.option.mark.closed
 						},
 					]
 				},
@@ -133,7 +148,7 @@ define({
 					"display"             : "none",
 					"class"               : define.class_name.option_wrap,
 					"child"               : this.library.morphism.index_loop({
-						array   : define.option.choice,
+						array   : define.with.option.choice,
 						else_do : function ( loop ) {
 							return loop.into.concat({
 								"class"               : define.class_name.option,
