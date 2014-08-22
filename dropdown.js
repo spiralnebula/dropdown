@@ -40,8 +40,7 @@ define({
 		return {}
 	},
 
-	define_state : function ( define ) { 
-		console.log( define )
+	define_state : function ( define ) {
 		return { 
 			value : define.with.option.value || define.with.option.choice[0]
 		}
@@ -124,7 +123,6 @@ define({
 	},
 
 	define_body : function ( define ) {
-		console.log( define.class_name )
 		return { 
 			"class" : define.class_name.main,
 			child   : [
