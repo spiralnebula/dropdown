@@ -1,4 +1,4 @@
-define({
+efine({
 
 	define : {
 		allow   : "*",
@@ -41,6 +41,7 @@ define({
 	},
 
 	define_state : function ( define ) {
+		console.log( define )
 		return { 
 			value : define.with.option.value || define.with.option.choice[0]
 		}
@@ -114,6 +115,7 @@ define({
 					option_state         = heard.state.option[name]
 					wrap.style.display   = "none"
 					notation.textContent = wrap.previousSibling.getAttribute("data-mark-closed")
+					text.textContent     = value
 					text.textContent     = option.getAttribute("data-dropdown-text")
 					option_state.value   = value
 					return heard
@@ -123,6 +125,7 @@ define({
 	},
 
 	define_body : function ( define ) {
+		console.log( define.class_name )
 		var self = this
 		return { 
 			"class" : define.class_name.main,
@@ -132,9 +135,11 @@ define({
 					"data-dropdown"    : "true",
 					"data-mark-closed" : define.with.option.mark.closed,
 					"data-mark-open"   : define.with.option.mark.open,
+					child              : [
 					"child"            : [
 						{
 							"class" : define.class_name.option_selected,
+							"text"  : define.with.option.default_value
 							"text"  : define.with.option.value || define.with.option.choice[0]
 						},
 						{
