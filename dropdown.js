@@ -1,4 +1,4 @@
-efine({
+define({
 
 	define : {
 		allow   : "*",
@@ -10,50 +10,74 @@ efine({
 	},
 
 	make : function ( define ) {
-		var event_circle, body, option_name,
-		default_value = define.option.default_value || define.option.choice[0]
-		body          = this.library.transistor.make(this.define_body({
+
+		var event_circle, body, option_name
+
+		define.with.option.default_value = define.with.option.default_value || define.with.option.choice[0]
+		body                             = this.library.transistor.make(this.define_body({
 			name   : "main",
 			option : {
-				default_value : default_value,
-				choice        : define.option.choice,
-				mark          : define.option.mark
+				default_value : define.with.option.default_value,
+				choice        : define.with.option.choice,
+				mark          : define.with.option.mark
 			},
 			class_name    : define.class_name
 		}))
 		event_circle = this.library.event_master.make({
 			events : this.define_event({
-				body : body.body
+				body : body,
+				with : define.with
 			}),
-			state  : {
-				option : {
-					"main" : default_value
-				}
-			},
+			state  : this.define_state( define )
 		})
-		event_circle.add_listener(this.define_listener({
-			default_value : default_value,
-			choice        : define.option.choice,
-			mark          : define.option.mark
-		}))
-		body.append( define.append_to )
-		return {}
+		event_circle.add_listener(
+			this.define_listener( define )
+		)
+		
+		return {
+			body      : body.body,
+			append    : body.append,
+			get_state : function () { 
+				return event_circle.get_state()
+			},
+			reset     : function () {
+				event_circle.stage_event({
+					called : "reset",
+					as     : function ( state ) { 
+						return { 
+							event : { 
+								target :body.body
+							},
+							state : state
+						}
+					}
+				})
+			},
+		}
+	},
+
+	define_interface : function ( define ) { 
+		// for later yo, best to keep the interface segregation here
 	},
 
 	define_state : function ( define ) {
-		console.log( define )
-		return { 
-			value : define.with.option.value || define.with.option.choice[0]
+		var default_value = define.with.option.value || define.with.option.choice[0]
+		return {
+			original_value : default_value,
+			value          : default_value,
 		}
 	},
 
 	define_event : function ( define ) {
 		return [
 			{
+				called       : "reset"
+			},
+			{
 				called       : "toggle dropdown",
 				that_happens : [
 					{
-						on : define.with.body,
+						on : define.body.body,
 						is : [ "click" ]
 					}
 				],
@@ -68,7 +92,7 @@ efine({
 				called       : "option select",
 				that_happens : [
 					{
-						on : define.with.body,
+						on : define.body.body,
 						is : [ "click" ]
 					}
 				],
@@ -81,6 +105,25 @@ efine({
 
 	define_listener : function ( define ) {
 		return [
+			{ 
+				for       : "reset",
+				that_does : function ( heard ) {
+
+					var wrap_node, text_node, option_wrap_node, head_node, mark_node
+
+					wrap_node                      = heard.event.target
+					head_node                      = heard.event.target.firstChild
+					text_node                      = head_node.firstChild
+					option_wrap_node               = heard.event.target.lastChild
+					mark_node                      = head_node.lastChild
+					option_wrap_node.style.display = "none"
+					text_node.textContent          = heard.state.original_value
+					heard.state.value              = heard.state.original_value
+					mark_node.textContent          = head_node.getAttribute("data-mark-closed")
+					console.log(" dropdown reset ")
+					return heard
+				}
+			},
 			{
 				for       : "toggle dropdown",
 				that_does : function ( heard ) {
@@ -112,10 +155,9 @@ efine({
 					notation             = wrap.previousSibling.lastChild
 					name                 = option.getAttribute("data-dropdown-name")
 					value                = option.getAttribute("data-dropdown-value")
-					option_state         = heard.state.option[name]
+					option_state         = heard.state
 					wrap.style.display   = "none"
 					notation.textContent = wrap.previousSibling.getAttribute("data-mark-closed")
-					text.textContent     = value
 					text.textContent     = option.getAttribute("data-dropdown-text")
 					option_state.value   = value
 					return heard
@@ -125,7 +167,6 @@ efine({
 	},
 
 	define_body : function ( define ) {
-		console.log( define.class_name )
 		var self = this
 		return { 
 			"class" : define.class_name.main,
@@ -133,18 +174,16 @@ efine({
 				{
 					"class"            : define.class_name.option_selected_wrap,
 					"data-dropdown"    : "true",
-					"data-mark-closed" : define.with.option.mark.closed,
-					"data-mark-open"   : define.with.option.mark.open,
-					child              : [
+					"data-mark-closed" : define.option.mark.closed,
+					"data-mark-open"   : define.option.mark.open,
 					"child"            : [
 						{
 							"class" : define.class_name.option_selected,
-							"text"  : define.with.option.default_value
-							"text"  : define.with.option.value || define.with.option.choice[0]
+							"text"  : define.option.value || define.option.choice[0]
 						},
 						{
 							"class" : define.class_name.option_selector,
-							"text"  : define.with.option.mark.closed
+							"text"  : define.option.mark.closed
 						},
 					]
 				},
@@ -152,7 +191,7 @@ efine({
 					"display"             : "none",
 					"class"               : define.class_name.option_wrap,
 					"child"               : this.library.morphism.index_loop({
-						array   : define.with.option.choice,
+						array   : define.option.choice,
 						else_do : function ( loop ) {
 							return loop.into.concat(self.define_option({
 								class_name : define.class_name,
@@ -194,12 +233,17 @@ efine({
 	}
 	
 })
+
 // could create a context finder that is fed a definiton and then finds what he needs based upon it
 // accepts definition, 
 // node that is meant to represent it, 
 // what he needs to find, 
 // returns the node needing to be found
 
-// should also have a more concrete way of assignign events to certain thigns so that hter eare no conflicts
+// should also have a more concrete way of assigning events to certain thigns so that there are no conflicts
 // in the case of using only if checkers. 
-// perhaps a context assigner as opsoded to the finder. 
+// perhaps a context assigner as opossed to the finder. 
+
+// I think that the transistor.get method fixed this i forger these things 
+// no could do something far funker by adding a method to the transistor as such
+// transistor.find_by_path("3child:1child") or transistor.find_by_path("4Ancestor") funkey i know
