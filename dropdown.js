@@ -11,10 +11,10 @@ define({
 
 	make : function ( define ) {
 
-		var event_circle, body, option_name
+		var event_circle, dropdown_body, option_name
 
 		define.with.option.default_value = define.with.option.default_value || define.with.option.choice[0]
-		body                             = this.library.transistor.make(this.define_body({
+		dropdown_body                    = this.library.transistor.make(this.define_body({
 			name   : "main",
 			option : {
 				default_value : define.with.option.default_value,
@@ -23,9 +23,9 @@ define({
 			},
 			class_name    : define.class_name
 		}))
-		event_circle = this.library.event_master.make({
+		event_circle                    = this.library.event_master.make({
 			events : this.define_event({
-				body : body,
+				body : dropdown_body,
 				with : define.with
 			}),
 			state  : this.define_state( define )
@@ -33,20 +33,27 @@ define({
 		event_circle.add_listener(
 			this.define_listener( define )
 		)
-		
+
+		return this.define_interface({
+			body         : dropdown_body,
+			event_master : event_circle
+		})
+	},
+
+	define_interface : function ( define ) { 
 		return {
-			body      : body.body,
-			append    : body.append,
+			body      : define.body.body,
+			append    : define.body.append,
 			get_state : function () { 
-				return event_circle.get_state()
+				return define.event_master.get_state()
 			},
 			reset     : function () {
-				event_circle.stage_event({
+				define.event_master.stage_event({
 					called : "reset",
 					as     : function ( state ) { 
 						return { 
 							event : { 
-								target :body.body
+								target : define.body.body
 							},
 							state : state
 						}
@@ -54,10 +61,6 @@ define({
 				})
 			},
 		}
-	},
-
-	define_interface : function ( define ) { 
-		// for later yo, best to keep the interface segregation here
 	},
 
 	define_state : function ( define ) {
