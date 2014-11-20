@@ -123,7 +123,6 @@ define({
 					text_node.textContent          = heard.state.original_value
 					heard.state.value              = heard.state.original_value
 					mark_node.textContent          = head_node.getAttribute("data-mark-closed")
-					console.log(" dropdown reset ")
 					return heard
 				}
 			},
