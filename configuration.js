@@ -41,6 +41,8 @@ define({
 		"library/event_master",
 	],
 	package : [
-		"library/transistor"
+		"library/transistor",
+		"library/transit",
+		"library/morph"
 	]
 })

@@ -3,14 +3,15 @@ define({
 	define : {
 		allow   : "*",
 		require : [
-			"morphism",
+			"morph",
 			"transistor",
 			"event_master",
+			"transit"
 		],
 	},
 
 	make : function ( define ) {
-		
+
 		var event_circle, dropdown_body, option_name
 
 		define.with.option.default_value = define.with.option.default_value || define.with.option.choice[0]
@@ -23,7 +24,8 @@ define({
 			},
 			class_name    : define.class_name
 		}))
-		event_circle                    = this.library.event_master.make({
+
+		event_circle                     = this.library.event_master.make({
 			events : this.define_event({
 				body : dropdown_body,
 				with : define.with
@@ -33,6 +35,37 @@ define({
 		event_circle.add_listener(
 			this.define_listener( define )
 		)
+
+		if ( define.with.option.choice.constructor === Object ) { 
+
+			this.library.transit.to({
+				url  : define.with.option.choice.url,
+				do   : define.with.option.choice.do,
+				flat : define.with.option.choice.flat,
+				with : define.with.option.choice.with,
+				when : {
+					finished : function ( result ) {
+						var choice
+						choice = define.with.option.choice.when.finished.call( {}, result )
+						event_circle.stage_event({
+							called : "choice change",
+							as     : function ( state ) {
+								return { 
+									state : {
+										original_value : state.original_value,
+										value          : state.value,
+										choice         : choice
+									},
+									event : { 
+										target : dropdown_body.body
+									}
+								}
+							}
+						})
+					}
+				}
+			})
+		}
 
 		return this.define_interface({
 			body         : dropdown_body,
@@ -64,17 +97,21 @@ define({
 	},
 
 	define_state : function ( define ) {
-		var default_value = define.with.option.value || define.with.option.choice[0]
+		var default_value = define.with.option.value || define.with.option.choice[0] || false
 		return {
 			original_value : default_value,
 			value          : default_value,
+			choice         : []
 		}
 	},
 
 	define_event : function ( define ) {
 		return [
 			{
-				called       : "reset"
+				called : "reset"
+			},
+			{ 
+				called : "choice change"
 			},
 			{
 				called       : "toggle dropdown",
@@ -107,7 +144,37 @@ define({
 	},
 
 	define_listener : function ( define ) {
+
+		var self = this
 		return [
+			{ 
+				for       : "choice change",
+				that_does : function ( heard ) {
+					
+					var text_container, content, body
+
+					body              = heard.event.target
+					text_container    = heard.event.target.firstChild.firstChild
+					content           = self.library.transistor.make({
+						"display" : "none",
+						"class"   : define.class_name.option_wrap,
+						"child"   : self.library.morph.index_loop({
+							subject : heard.state.choice,
+							else_do : function ( loop ) {
+								return loop.into.concat( self.define_option({
+									class_name : define.class_name,
+									option     : loop.indexed
+								}) )
+							}
+						})
+					})
+					text_container.textContent = heard.state.default_value || heard.state.choice[0]
+					body.removeChild( body.children[1] )
+					content.append( body )
+
+					return heard
+				}
+			},
 			{ 
 				for       : "reset",
 				that_does : function ( heard ) {
@@ -169,10 +236,35 @@ define({
 	},
 
 	define_body : function ( define ) {
-		var self = this
+
+		var self, dropdown_content, selected_text
+
+		self = this
+
+		if ( define.option.choice.constructor === Object ) {
+			selected_text    = "Loading..."
+			dropdown_content = this.define_loading_option({ 
+				class_name : define.class_name
+			})
+		}
+
+		if ( define.option.choice.constructor === Array ) {
+			selected_text    = define.option.value || define.option.choice[0]
+			dropdown_content = this.library.morphism.index_loop({
+				array   : define.option.choice,
+				else_do : function ( loop ) {
+					return loop.into.concat(self.define_option({
+						class_name : define.class_name,
+						name       : define.name,
+						option     : loop.indexed
+					}))
+				}
+			})
+		}
+
 		return { 
 			"class" : define.class_name.main,
-			child   : [
+			"child" : [
 				{
 					"class"            : define.class_name.option_selected_wrap,
 					"data-dropdown"    : "true",
@@ -181,7 +273,7 @@ define({
 					"child"            : [
 						{
 							"class" : define.class_name.option_selected,
-							"text"  : define.option.value || define.option.choice[0]
+							"text"  : selected_text
 						},
 						{
 							"class" : define.class_name.option_selector,
@@ -190,27 +282,16 @@ define({
 					]
 				},
 				{
-					"display"             : "none",
-					"class"               : define.class_name.option_wrap,
-					"child"               : this.library.morphism.index_loop({
-						array   : define.option.choice,
-						else_do : function ( loop ) {
-							return loop.into.concat(self.define_option({
-								class_name : define.class_name,
-								name       : define.name,
-								option     : loop.indexed
-							}))
-							return loop.into.concat({
-								"class"               : define.class_name.option,
-								"data-dropdown-name"  : define.name,
-								"data-dropdown-value" : loop.indexed,
-								"text"                : loop.indexed
-							})
-						}
-					})
+					"display" : "none",
+					"class"   : define.class_name.option_wrap,
+					"child"   : dropdown_content
 				}
 			]
 		}
+	},
+
+	define_loading_option : function ( define ) { 
+		return []
 	},
 
 	define_option : function ( define ) {
