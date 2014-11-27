@@ -250,8 +250,8 @@ define({
 
 		if ( define.option.choice.constructor === Array ) {
 			selected_text    = define.option.value || define.option.choice[0]
-			dropdown_content = this.library.morphism.index_loop({
-				array   : define.option.choice,
+			dropdown_content = this.library.morph.index_loop({
+				subject : define.option.choice,
 				else_do : function ( loop ) {
 					return loop.into.concat(self.define_option({
 						class_name : define.class_name,
