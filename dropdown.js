@@ -98,6 +98,7 @@ define({
 
 	define_state : function ( define ) {
 		var default_value = define.with.option.value || define.with.option.choice[0] || false
+		console.log( default_value )
 		return {
 			original_value : default_value,
 			value          : default_value,
@@ -168,6 +169,8 @@ define({
 							}
 						})
 					})
+					heard.state.original_value = heard.state.choice[0]
+					heard.state.value          = heard.state.choice[0]
 					text_container.textContent = heard.state.default_value || heard.state.choice[0]
 					body.removeChild( body.children[1] )
 					content.append( body )
