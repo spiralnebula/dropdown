@@ -26,22 +26,14 @@ dropdown.make({
                 url  : String,
                 do   : String,
                 flat : Boolean,
-                with : { 
-                    "class"      : String,
-                    "method"     : String,
-                    "paramaters" : Object
-                },
+                with : Object,
                 when : {
                     finished : function ( given ) {
                         // console.log( given )
                         // {
                         //      event  : XMLHttpRequest,
                         //      result : Infinity,
-                        //      with   : { 
-                        //          class      : String,
-                        //          method     : String,
-                        //          paramaters : Object
-                        //  },
+                        //      with   : Object,
                         // }
                         return Infinity
                     }
