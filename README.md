@@ -7,12 +7,47 @@ A ui package component for replacing dropdowns.
 
 ```javascript
 dropdown.make({
-    class_name : Object
-    with       : {
+    class_name : {
+        "main"                 : "package_main_dropdown",
+        "label"                : "package_main_dropdown_label",
+        "select_wrap"          : "package_main_dropdown_select_wrap",
+        "option_selected_wrap" : "package_main_dropdown_option_selected_wrap",
+        "option_selected"      : "package_main_dropdown_option_selected",
+        "option_selector"      : "package_main_dropdown_option_selector",
+        "option_wrap"          : "package_main_dropdown_option_wrap",
+        "option"               : "package_main_dropdown_option",
+    },
+    with         : {
+        label : {
+            text : String
+        },
         option : {
-            choice        : Array,
-            default_value : String,
-            dropdown_mark : {
+            choice : {
+                url  : String,
+                do   : String,
+                flat : Boolean,
+                with : { 
+                    "class"      : String,
+                    "method"     : String,
+                    "paramaters" : Object
+                },
+                when : {
+                    finished : function ( given ) {
+                        // console.log( given )
+                        // {
+                        //      event  : XMLHttpRequest,
+                        //      result : Infinity,
+                        //      with   : { 
+                        //          class      : String,
+                        //          method     : String,
+                        //          paramaters : Object
+                        //  },
+                        // }
+                        return Infinity
+                    }
+                }
+            },
+            mark : {
                 open   : String,
                 closed : String
             }

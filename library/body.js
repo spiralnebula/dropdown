@@ -20,6 +20,17 @@
 				"morph" 
 			],
 		},
+
+		define_body_map : function () { 
+			return {
+				dropdown    : "last",
+				head        : "last:first",
+				text        : "last:first:first",
+				mark        : "last:first:last",
+				option_wrap : "last:last",
+				// label       : "first",
+			}
+		},
 			
 		define_body : function ( define ) {
 
@@ -83,31 +94,9 @@
 				]
 			})
 
-			return {
-				"class" : define.class_name.select_wrap,
-				"child" : [
-					{
-						"class"            : define.class_name.option_selected_wrap,
-						"data-dropdown"    : "true",
-						"data-mark-closed" : define.with.option.mark.closed,
-						"data-mark-open"   : define.with.option.mark.open,
-						"child"            : [
-							{
-								"class" : define.class_name.option_selected,
-								"text"  : selected_text
-							},
-							{
-								"class" : define.class_name.option_selector,
-								"text"  : define.with.option.mark.closed
-							},
-						]
-					},
-					{
-						"display" : "none",
-						"class"   : define.class_name.option_wrap,
-						"child"   : dropdown_content
-					}
-				]
+			return { 
+				"class" : define.class_name.main,
+				"child" : content
 			}
 		},
 

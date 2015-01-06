@@ -55,6 +55,7 @@
 							body : heard.state.body.node,
 							map  : heard.state.body.map
 						})
+						
 						content = self.library.transistor.make({
 							"display" : "none",
 							"class"   : define.class_name.option_wrap,
@@ -72,8 +73,8 @@
 						heard.state.value          = heard.state.choice[0]
 						body.text.textContent      = heard.state.default_value || heard.state.choice[0]
 
-						body.main.removeChild( body.main.children[1] )
-						content.append( body.main )
+						body.dropdown.removeChild( body.dropdown.children[1] )
+						content.append( body.dropdown )
 
 						return heard
 					}

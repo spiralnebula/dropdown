@@ -123,12 +123,7 @@ define({
 	},
 
 	define_body_map : function ( define ) { 
-		return {
-			head        : "first",
-			text        : "first:first",
-			mark        : "first:last",
-			option_wrap : "last",
-		}
+		return this.library.body.define_body_map( define )
 	},
 })
 
