@@ -6,7 +6,10 @@ define({
 			"morph",
 			"transistor",
 			"event_master",
-			"transit"
+			"transit",
+			"body",
+			"listener",
+			"event",
 		],
 	},
 
@@ -15,22 +18,20 @@ define({
 		var event_circle, dropdown_body, option_name
 
 		define.with.option.default_value = define.with.option.default_value || define.with.option.choice[0]
-		dropdown_body                    = this.library.transistor.make(this.define_body({
-			name   : "main",
-			option : {
-				default_value : define.with.option.default_value,
-				choice        : define.with.option.choice,
-				mark          : define.with.option.mark
-			},
-			class_name    : define.class_name
-		}))
-
+		dropdown_body                    = this.library.transistor.make( 
+			this.define_body(
+				define
+			)
+		)
 		event_circle                     = this.library.event_master.make({
+			state  : this.define_state({
+				body : dropdown_body,
+				with : define.with,
+			}),
 			events : this.define_event({
 				body : dropdown_body,
 				with : define.with
 			}),
-			state  : this.define_state( define )
 		})
 		event_circle.add_listener(
 			this.define_listener( define )
@@ -50,12 +51,9 @@ define({
 						event_circle.stage_event({
 							called : "choice change",
 							as     : function ( state ) {
+								state.choice = choice
 								return { 
-									state : {
-										original_value : state.original_value,
-										value          : state.value,
-										choice         : choice
-									},
+									state : state,
 									event : { 
 										target : dropdown_body.body
 									}
@@ -97,228 +95,46 @@ define({
 	},
 
 	define_state : function ( define ) {
+		
 		var default_value = define.with.option.value || define.with.option.choice[0] || false
-		console.log( default_value )
+
 		return {
 			original_value : default_value,
 			value          : default_value,
-			choice         : []
+			choice         : [],
+			mark           : define.with.option.mark,
+			body           : {
+				node : define.body.body,
+				map  : this.define_body_map()
+			}
 		}
 	},
 
-	define_event : function ( define ) {
-		return [
-			{
-				called : "reset"
-			},
-			{ 
-				called : "choice change"
-			},
-			{
-				called       : "toggle dropdown",
-				that_happens : [
-					{
-						on : define.body.body,
-						is : [ "click" ]
-					}
-				],
-				only_if      : function ( heard ) {
-					return ( 
-						heard.event.target.hasAttribute("data-dropdown") ||
-						heard.event.target.parentElement.hasAttribute("data-dropdown")
-					)
-				}
-			},
-			{
-				called       : "option select",
-				that_happens : [
-					{
-						on : define.body.body,
-						is : [ "click" ]
-					}
-				],
-				only_if : function ( heard ) {
-					return ( heard.event.target.getAttribute("data-dropdown-value") )
-				}
-			}
-		]
+	define_body : function ( define ) { 
+		return this.library.body.define_body( define )
+	},
+
+	define_event : function ( define ) { 
+		return this.library.event.define_event( define )
 	},
 
 	define_listener : function ( define ) {
-
-		var self = this
-		return [
-			{ 
-				for       : "choice change",
-				that_does : function ( heard ) {
-					
-					var text_container, content, body
-
-					body              = heard.event.target
-					text_container    = heard.event.target.firstChild.firstChild
-					content           = self.library.transistor.make({
-						"display" : "none",
-						"class"   : define.class_name.option_wrap,
-						"child"   : self.library.morph.index_loop({
-							subject : heard.state.choice,
-							else_do : function ( loop ) {
-								return loop.into.concat( self.define_option({
-									class_name : define.class_name,
-									option     : loop.indexed
-								}) )
-							}
-						})
-					})
-					heard.state.original_value = heard.state.choice[0]
-					heard.state.value          = heard.state.choice[0]
-					text_container.textContent = heard.state.default_value || heard.state.choice[0]
-					body.removeChild( body.children[1] )
-					content.append( body )
-
-					return heard
-				}
-			},
-			{ 
-				for       : "reset",
-				that_does : function ( heard ) {
-
-					var wrap_node, text_node, option_wrap_node, head_node, mark_node
-
-					wrap_node                      = heard.event.target
-					head_node                      = heard.event.target.firstChild
-					text_node                      = head_node.firstChild
-					option_wrap_node               = heard.event.target.lastChild
-					mark_node                      = head_node.lastChild
-					option_wrap_node.style.display = "none"
-					text_node.textContent          = heard.state.original_value
-					heard.state.value              = heard.state.original_value
-					mark_node.textContent          = head_node.getAttribute("data-mark-closed")
-					return heard
-				}
-			},
-			{
-				for       : "toggle dropdown",
-				that_does : function ( heard ) {
-					var dropdown_body
-					dropdown_body  = ( 
-						heard.event.target.getAttribute("data-dropdown") ? 
-							heard.event.target : 
-							heard.event.target.parentElement 
-					)
-					
-					if ( dropdown_body.nextSibling.style.display === "none" ) { 
-						dropdown_body.nextSibling.style.display = "block"
-						dropdown_body.lastChild.textContent     = dropdown_body.getAttribute("data-mark-open")
-					} else { 
-						dropdown_body.nextSibling.style.display = "none"
-						dropdown_body.lastChild.textContent     = dropdown_body.getAttribute("data-mark-closed")
-					}
-
-					return heard
-				}
-			},
-			{
-				for       : "option select",
-				that_does : function ( heard ) {
-					var wrap, name, value, text, notation, option, option_state
-					option               = heard.event.target
-					wrap                 = option.parentElement
-					text                 = wrap.previousSibling.firstChild
-					notation             = wrap.previousSibling.lastChild
-					name                 = option.getAttribute("data-dropdown-name")
-					value                = option.getAttribute("data-dropdown-value")
-					option_state         = heard.state
-					wrap.style.display   = "none"
-					notation.textContent = wrap.previousSibling.getAttribute("data-mark-closed")
-					text.textContent     = option.getAttribute("data-dropdown-text")
-					option_state.value   = value
-					return heard
-				},
-			}
-		]
+		return this.library.listener.define_listener( define )
 	},
 
-	define_body : function ( define ) {
-
-		var self, dropdown_content, selected_text
-
-		self = this
-
-		if ( define.option.choice.constructor === Object ) {
-			selected_text    = "Loading..."
-			dropdown_content = this.define_loading_option({ 
-				class_name : define.class_name
-			})
-		}
-
-		if ( define.option.choice.constructor === Array ) {
-			selected_text    = define.option.value || define.option.choice[0]
-			dropdown_content = this.library.morph.index_loop({
-				subject : define.option.choice,
-				else_do : function ( loop ) {
-					return loop.into.concat(self.define_option({
-						class_name : define.class_name,
-						name       : define.name,
-						option     : loop.indexed
-					}))
-				}
-			})
-		}
-
-		return { 
-			"class" : define.class_name.main,
-			"child" : [
-				{
-					"class"            : define.class_name.option_selected_wrap,
-					"data-dropdown"    : "true",
-					"data-mark-closed" : define.option.mark.closed,
-					"data-mark-open"   : define.option.mark.open,
-					"child"            : [
-						{
-							"class" : define.class_name.option_selected,
-							"text"  : selected_text
-						},
-						{
-							"class" : define.class_name.option_selector,
-							"text"  : define.option.mark.closed
-						},
-					]
-				},
-				{
-					"display" : "none",
-					"class"   : define.class_name.option_wrap,
-					"child"   : dropdown_content
-				}
-			]
+	define_body_map : function ( define ) { 
+		return {
+			head        : "first",
+			text        : "first:first",
+			mark        : "first:last",
+			option_wrap : "last",
 		}
 	},
-
-	define_loading_option : function ( define ) { 
-		return []
-	},
-
-	define_option : function ( define ) {
-
-		var definition
-		definition = {
-			"class"               : define.class_name.option,
-			"data-dropdown-name"  : define.name,
-		}
-
-		if ( define.option.value && define.option.text ) { 
-			definition["data-dropdown-value"] = define.option.value,
-			definition["data-dropdown-text"]  = define.option.text,
-			definition["text"]                = define.option.text
-		} else { 
-			definition["data-dropdown-value"] = define.option,
-			definition["data-dropdown-text"]  = define.option,
-			definition["text"]                = define.option
-		}
-
-		return definition
-	}
-	
 })
+
+// create some kind of mapping method
+// that would create the right map each time a event is triggered
+// resulting in the event handleres never having to remap anything if the structure of the layout changes
 
 // could create a context finder that is fed a definiton and then finds what he needs based upon it
 // accepts definition, 

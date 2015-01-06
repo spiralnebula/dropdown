@@ -1,5 +1,4 @@
 define({
-	// style: "",
 	name    : "dropdown",
 	main    : "dropdown",
 	start   : { 
@@ -39,6 +38,10 @@ define({
 	module  : [
 		"library/morphism",
 		"library/event_master",
+		"library/body",
+		"library/event",
+		"library/listener",
+		"library/bodymap",
 	],
 	package : [
 		"library/transistor",
