@@ -1,7 +1,7 @@
 (function ( window, module ) {
 
 	if ( window.define && window.define.amd ) {
-		define(module)
+		window.define(module)
 	} else { 
 
 		var current_scripts, this_script, module_name

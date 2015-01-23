@@ -1,13 +1,14 @@
-"use strict";
 (function ( window, module ) {
 
+	"use strict";
+
 	if ( window.define && window.define.amd ) {
-		define(module)
+		window.define( module )
 	} else { 
 
 		var current_scripts, this_script, module_name
 
-		current_scripts     = document.getElementsByTagName("script")
+		current_scripts     = window.document.getElementsByTagName("script")
 		this_script         = current_scripts[current_scripts.length-1]
 		module_name         = this_script.getAttribute("data-module-name") || "body"
 		window[module_name] = module
@@ -35,7 +36,7 @@
 			
 		define_body : function ( define ) {
 
-			var self, dropdown_content, content
+			var self, content
 
 			self    = this
 			content = []
@@ -57,7 +58,7 @@
 					}),
 					self.define_option_box({
 						class_name : define.class_name,
-						with       : define.with,
+						with       : define.with
 					})
 				]
 			})
@@ -120,6 +121,7 @@
 
 		define_option_box_items : function ( define ) {
 
+			var self = this
 
 			if ( define.with.option.choice.constructor === Object ) {
 
@@ -133,7 +135,7 @@
 				return this.library.morph.index_loop({
 					subject : define.with.option.choice,
 					else_do : function ( loop ) {
-						return loop.into.concat(self.define_option({
+						return loop.into.concat( self.define_option({
 							class_name : define.class_name,
 							option     : loop.indexed
 						}))
@@ -142,7 +144,7 @@
 			}
 		},
 
-		define_loading_option : function ( define ) { 
+		define_loading_option : function () { 
 			return []
 		},
 
@@ -156,13 +158,13 @@
 			}
 
 			if ( define.option.value && define.option.text ) {
-				definition["data-dropdown-value"] = define.option.value,
-				definition["data-dropdown-text"]  = define.option.text,
-				definition["text"]                = define.option.text
+				definition["data-dropdown-value"] = define.option.value
+				definition["data-dropdown-text"]  = define.option.text
+				definition.text                   = define.option.text
 			} else { 
-				definition["data-dropdown-value"] = define.option,
-				definition["data-dropdown-text"]  = define.option,
-				definition["text"]                = define.option
+				definition["data-dropdown-value"] = define.option
+				definition["data-dropdown-text"]  = define.option
+				definition.text                   = define.option
 			}
 
 			return definition
