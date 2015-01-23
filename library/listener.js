@@ -55,7 +55,7 @@
 							body : heard.state.body.node,
 							map  : heard.state.body.map
 						})
-						
+
 						content = self.library.transistor.make({
 							"display" : "none",
 							"class"   : define.class_name.option_wrap,
@@ -83,19 +83,17 @@
 					for       : "toggle dropdown",
 					that_does : function ( heard ) {
 
-						var body, dropdown_body
+						var body
 						body = self.library.bodymap.make({
 							body : heard.state.body.node,
 							map  : heard.state.body.map
 						})
-						
-						if ( body.option_wrap.style.display === "none" ) { 
-							body.option_wrap.style.display = "block"
-							body.mark.textContent          = heard.state.mark.open
-						} else { 
-							body.option_wrap.style.display = "none"
-							body.mark.textContent          = heard.state.mark.closed
-						}
+
+						self.open_or_close_option_box({
+							body  : body,
+							state : heard.state,
+							open  : ( body.option_wrap.style.display === "none" )
+						})
 
 						return heard
 					}
@@ -104,26 +102,40 @@
 					for       : "option select",
 					that_does : function ( heard ) {
 
-						var body, name, value, option, option_state
+						var body
 
 						body = self.library.bodymap.make({
 							body : heard.state.body.node,
 							map  : heard.state.body.map
 						})
 
-						option_state                   = heard.state
-						option                         = heard.event.target
-						name                           = option.getAttribute("data-dropdown-name")
-						value                          = option.getAttribute("data-dropdown-value")
-						body.option_wrap.style.display = "none"
-						body.mark.textContent          = heard.state.mark.closed
-						body.text.textContent          = option.getAttribute("data-dropdown-text")
-						option_state.value             = value
+						self.open_or_close_option_box({
+							body  : body,
+							state : heard.state,
+							open  : false
+						})
+
+						body.text.textContent = heard.event.target.getAttribute("data-dropdown-text")
+						heard.state.value     = heard.event.target.getAttribute("data-dropdown-value")
 
 						return heard
 					},
 				}
 			]
 		},
+
+		open_or_close_option_box : function ( given ) {
+
+			if ( given.open ) {
+
+				given.body.mark.textContent = given.state.mark.open
+				given.body.option_wrap.style.setProperty("display", "block")
+
+			} else {
+
+				given.body.mark.textContent = given.state.mark.closed
+				given.body.option_wrap.style.setProperty("display", "none")
+			}
+		}
 	}
 )

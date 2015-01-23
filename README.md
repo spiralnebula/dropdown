@@ -8,14 +8,14 @@ A ui package component for replacing dropdowns.
 ```javascript
 dropdown.make({
     class_name : {
-        "main"                 : "package_main_dropdown",
-        "label"                : "package_main_dropdown_label",
-        "select_wrap"          : "package_main_dropdown_select_wrap",
-        "option_selected_wrap" : "package_main_dropdown_option_selected_wrap",
-        "option_selected"      : "package_main_dropdown_option_selected",
-        "option_selector"      : "package_main_dropdown_option_selector",
-        "option_wrap"          : "package_main_dropdown_option_wrap",
-        "option"               : "package_main_dropdown_option",
+        "main"                 : String,
+        "label"                : String,
+        "select_wrap"          : String,
+        "option_selected_wrap" : String,
+        "option_selected"      : String,
+        "option_selector"      : String,
+        "option_wrap"          : String,
+        "option"               : String,
     },
     with         : {
         label : {
