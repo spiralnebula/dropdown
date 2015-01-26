@@ -102,7 +102,7 @@
 		define_option_box : function ( define ) {
 
 			var definition
-
+			
 			definition = {
 				"display" : "none",
 				"class"   : define.class_name.option_wrap,
@@ -153,8 +153,7 @@
 			var definition
 
 			definition = {
-				"class"               : define.class_name.option,
-				"data-dropdown-name"  : define.name,
+				"class" : define.class_name.option,
 			}
 
 			if ( define.option.value && define.option.text ) {

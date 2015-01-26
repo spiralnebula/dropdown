@@ -95,19 +95,7 @@ define({
 	},
 
 	define_state : function ( define ) {
-		
-		var default_value = define.with.option.value || define.with.option.choice[0] || false
-
-		return {
-			original_value : default_value,
-			value          : default_value,
-			choice         : [],
-			mark           : define.with.option.mark,
-			body           : {
-				node : define.body.body,
-				map  : this.define_body_map()
-			}
-		}
+		return this.library.event.define_state( define )
 	},
 
 	define_body : function ( define ) { 
@@ -126,21 +114,3 @@ define({
 		return this.library.body.define_body_map( define )
 	},
 })
-
-// create some kind of mapping method
-// that would create the right map each time a event is triggered
-// resulting in the event handleres never having to remap anything if the structure of the layout changes
-
-// could create a context finder that is fed a definiton and then finds what he needs based upon it
-// accepts definition, 
-// node that is meant to represent it, 
-// what he needs to find, 
-// returns the node needing to be found
-
-// should also have a more concrete way of assigning events to certain thigns so that there are no conflicts
-// in the case of using only if checkers. 
-// perhaps a context assigner as opossed to the finder. 
-
-// I think that the transistor.get method fixed this i forger these things 
-// no could do something far funker by adding a method to the transistor as such
-// transistor.find_by_path("3child:1child") or transistor.find_by_path("4Ancestor") funkey i know

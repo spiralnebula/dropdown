@@ -27,7 +27,7 @@
 		define_listener : function ( define ) {
 
 			var self = this
-
+			
 			return [
 				{ 
 					for       : "reset",
@@ -51,31 +51,30 @@
 					that_does : function ( heard ) {
 						
 						var content, body
-						body = self.library.bodymap.make({
+						body                    = self.library.bodymap.make({
 							body : heard.state.body.node,
 							map  : heard.state.body.map
 						})
 
-						content = self.library.transistor.make({
-							"display" : "none",
-							"class"   : define.class_name.option_wrap,
-							"child"   : self.library.morph.index_loop({
-								subject : heard.state.choice,
-								else_do : function ( loop ) {
-									return loop.into.concat( self.library.body.define_option({
-										class_name : define.class_name,
-										option     : loop.indexed
-									}) )
-								}
+						content = self.library.transistor.make(
+							self.library.body.define_option_box({
+								class_name : define.class_name,
+								with       : {
+									option     : {
+										choice : heard.state.choice,
+										style  : heard.state.option_style
+									}
+								},
 							})
-						})
+						)
+
 						heard.state.original_value = heard.state.choice[0]
 						heard.state.value          = heard.state.choice[0]
 						body.text.textContent      = heard.state.default_value || heard.state.choice[0]
 
 						body.dropdown.removeChild( body.dropdown.children[1] )
 						content.append( body.dropdown )
-
+						
 						return heard
 					}
 				},
@@ -90,9 +89,10 @@
 						})
 
 						self.open_or_close_option_box({
-							body  : body,
-							state : heard.state,
-							open  : ( body.option_wrap.style.display === "none" )
+							body               : body,
+							state              : heard.state,
+							open               : ( body.option_wrap.style.display === "none" ),
+							match_parent_width : ( body.option_wrap.style.position === "absolute" )
 						})
 
 						return heard
@@ -135,6 +135,14 @@
 
 				given.body.mark.textContent = given.state.mark.closed
 				given.body.option_wrap.style.setProperty("display", "none")
+			}
+
+			if ( given.match_parent_width ) {
+
+				var head_style = window.getComputedStyle( given.body.head )
+
+				given.body.option_wrap.style.setProperty("margin-top", head_style.height )
+				given.body.option_wrap.style.setProperty("width", head_style.width )
 			}
 		}
 	}

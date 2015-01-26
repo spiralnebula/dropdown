@@ -17,8 +17,26 @@
 		define : {
 			allow   : "*",
 			require : [
-				"morph"
+				"morph",
+				"body",
 			],
+		},
+
+		define_state : function ( define ) { 
+
+			var default_value = define.with.option.value || define.with.option.choice[0] || false
+
+			return {
+				original_value : default_value,
+				value          : default_value,
+				choice         : [],
+				mark           : define.with.option.mark,
+				option_style   : define.with.option.style,
+				body           : {
+					node : define.body.body,
+					map  : this.library.body.define_body_map()
+				}
+			}
 		},
 
 		define_event : function ( define ) {
