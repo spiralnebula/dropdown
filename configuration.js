@@ -46,6 +46,7 @@ define({
 	package : [
 		"library/transistor",
 		"library/transit",
-		"library/morph"
+		"library/morph",
+		"library/piero",
 	]
 })

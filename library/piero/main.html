@@ -1,0 +1,45 @@
+<html>
+<head>
+  	<script
+		data-export-as          ="piero"
+		data-export-name-method ="make"
+		src                     ="nebula/entry.js"
+  	></script>
+</head>
+<body>
+	<div id="main" class="main">
+	</div>
+	<script>
+		(function () { 
+			window.setTimeout( function () {
+				var event_circle, main_node
+				main_node    = document.getElementById("main")
+				event_circle = piero.make({
+					state  : {},
+					events : [
+						{ 
+							"called"       : "somesome",
+							"that_happens" : [
+								{ 
+									on : main_node,
+									is : [ "click" ]
+								}
+							],
+							"only_if"      : function ( heard ) {
+								return true
+							}
+						}
+					],
+				})
+				event_circle.add_listener({
+					"for"       : "somesome",
+					"that_does" : function ( heard ) { 
+						return heard
+					}
+				})
+			}, 1500 )
+
+		}())
+	</script>
+</body>
+</html>
