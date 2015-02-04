@@ -15,7 +15,7 @@ define({
 	},
 
 	make : function ( define ) {
-		console.log( this.library )
+		
 		var event_circle, dropdown_body, option_name
 
 		define.with.option.default_value = define.with.option.default_value || define.with.option.choice[0]

@@ -36,8 +36,6 @@ define({
 		}
 	},
 	module  : [
-		"library/morphism",
-		"library/event_master",
 		"library/body",
 		"library/event",
 		"library/listener",
